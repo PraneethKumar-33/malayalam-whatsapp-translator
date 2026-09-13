@@ -5,12 +5,12 @@ from __future__ import annotations
 import argparse
 import ast
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
-from IPython.core.inputtransformer2 import TransformerManager
 import nbformat
+from IPython.core.inputtransformer2 import TransformerManager
 
 
 class NotebookCheckError(ValueError):

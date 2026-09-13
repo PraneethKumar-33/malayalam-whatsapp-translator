@@ -13,7 +13,6 @@ from __future__ import annotations
 import re
 from typing import Final
 
-
 SHORT_TEXT_MAX_WORDS: Final[int] = 4
 SHORT_TEXT_REQUIRED_MARKERS: Final[int] = 1
 LONG_TEXT_REQUIRED_MARKERS: Final[int] = 2

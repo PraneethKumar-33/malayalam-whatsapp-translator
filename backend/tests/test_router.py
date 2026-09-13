@@ -1,7 +1,7 @@
 from backend.app.router import (
     contains_malayalam_script,
-    route_language,
     roman_malayalam_fallback,
+    route_language,
 )
 
 

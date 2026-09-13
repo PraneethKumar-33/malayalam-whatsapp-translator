@@ -5,7 +5,6 @@ import pandas as pd
 
 from phase6.inference import create_engine, transliterate
 
-
 INPUT_PATH = Path("phase6/data/indicxlit_validation_75.csv")
 OUTPUT_PATH = Path("phase6/results/indicxlit_validation_75_results.csv")
 

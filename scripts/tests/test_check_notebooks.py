@@ -1,9 +1,9 @@
 """Behavioral checks for the notebook CI gate; no notebook code is executed."""
 
 import json
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 
 import nbformat
 

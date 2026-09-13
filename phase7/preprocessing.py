@@ -13,7 +13,6 @@ from __future__ import annotations
 import re
 from typing import Final
 
-
 # Evidence-backed exact surface-form corrections observed in Phase 6.
 NORMALIZATION_RULES: Final[dict[str, str]] = {
     "ഇന്നു": "ഇന്ന്",
