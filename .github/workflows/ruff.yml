@@ -1,0 +1,35 @@
+name: Python Quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruff:
+    name: Ruff check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run Ruff
+        uses: astral-sh/ruff-action@v4.1.0
+        with:
+          version: "0.16.7"
+          checksum: "73894c7b7c9a53fd66ed715eb3a1ec65077f316328e377057a98bdb7fcba0326"
+          args: "check"
+          src: "backend phase6 phase7 scripts"
