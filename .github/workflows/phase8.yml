@@ -1,0 +1,90 @@
+name: Phase 8 CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase8-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependency
+        run: python -m pip install pytest==9.1.1
+
+      - name: Check backend Python syntax
+        run: python -m compileall -q backend
+
+      - name: Run Phase 8 contract tests
+        run: python -m pytest backend/tests/test_lid.py backend/tests/test_router.py -q
+
+  notebook-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install notebook validation dependencies
+        run: python -m pip install -r .github/requirements-notebook-ci.txt
+
+      - name: Test notebook validator failure cases
+        run: python -m unittest discover -s scripts/tests -v
+
+      - name: Validate tracked notebooks without executing them
+        run: python scripts/check_notebooks.py
+
+  workflow-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate GitHub Actions workflows
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+        run: |
+          set -euo pipefail
+          ci_archive="$RUNNER_TEMP/actionlint.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            --output "$ci_archive"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$ci_archive" | sha256sum --check
+          tar -xzf "$ci_archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color

@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
-
 app = FastAPI(
     title="Malayalam WhatsApp Translator API",
     version="0.1.0",
