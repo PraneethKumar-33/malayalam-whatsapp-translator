@@ -110,3 +110,55 @@ def test_same_input_is_stable_with_reused_engine(real_indicxlit_engine):
     )
 
     assert output1 == output2
+
+
+def test_indicxlit_engine_is_loaded_once(real_indicxlit_engine):
+    from backend.app.indicxlit_runtime import get_indicxlit_engine
+
+    engine1 = get_indicxlit_engine()
+    engine2 = get_indicxlit_engine()
+
+    assert engine1 is real_indicxlit_engine
+    assert engine2 is engine1
+    assert get_indicxlit_engine.cache_info().misses == 1
+
+
+def test_cached_runtime_does_not_require_model_redownload(
+    real_indicxlit_engine,
+    monkeypatch,
+):
+    import os
+
+    import ai4bharat.transliteration.transformer.base_engine as base_engine
+    import ai4bharat.transliteration.transformer.en2indic as en2indic
+
+    from backend.app.indicxlit_runtime import get_indicxlit_engine
+
+    if en2indic.is_directory_writable(en2indic.F_DIR):
+        models_root = os.path.join(en2indic.F_DIR, "models")
+    else:
+        models_root = os.path.expanduser("~/.AI4Bharat_Xlit_Models")
+
+    model_path = os.path.join(
+        models_root,
+        "en2indic",
+        en2indic.XLIT_VERSION,
+        base_engine.MODEL_FILE,
+    )
+
+    assert os.path.isfile(model_path), (
+        f"Expected cached IndicXlit model at {model_path}"
+    )
+
+    def fail_if_downloaded(*args, **kwargs):
+        raise AssertionError(
+            "Cached IndicXlit initialization attempted a model download."
+        )
+
+    monkeypatch.setattr(base_engine, "dload", fail_if_downloaded)
+
+    get_indicxlit_engine.cache_clear()
+    engine = get_indicxlit_engine()
+
+    assert engine is not None
+    assert callable(engine.translit_sentence)

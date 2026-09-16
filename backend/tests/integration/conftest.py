@@ -14,15 +14,15 @@ def real_indicxlit_engine():
     os.environ.setdefault("TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD", "1")
 
     try:
-        from phase6.inference import create_engine
+        from backend.app.indicxlit_runtime import get_indicxlit_engine
     except Exception as exc:
         pytest.fail(
-            f"IndicXlit runtime dependencies could not be imported: {exc}",
+            f"IndicXlit production runtime loader could not be imported: {exc}",
             pytrace=True,
         )
 
     try:
-        return create_engine()
+        return get_indicxlit_engine()
     except Exception as exc:
         pytest.fail(
             f"IndicXlit runtime/model failed to initialize: {exc}",
