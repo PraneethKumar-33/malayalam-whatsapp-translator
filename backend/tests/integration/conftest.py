@@ -15,7 +15,8 @@ def real_indicxlit_engine():
 
     try:
         from backend.app.indicxlit_runtime import get_indicxlit_engine
-    except Exception as exc:
+        from backend.app.transliterator import IndicXlitUnavailableError
+    except ImportError as exc:
         pytest.fail(
             f"IndicXlit production runtime loader could not be imported: {exc}",
             pytrace=True,
@@ -23,7 +24,7 @@ def real_indicxlit_engine():
 
     try:
         return get_indicxlit_engine()
-    except Exception as exc:
+    except IndicXlitUnavailableError as exc:
         pytest.fail(
             f"IndicXlit runtime/model failed to initialize: {exc}",
             pytrace=True,

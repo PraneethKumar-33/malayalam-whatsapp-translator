@@ -3,7 +3,6 @@ import pytest
 from backend.app.transliterator import IndicXlit
 from phase7.preprocessing import normalize_roman_malayalam
 
-
 pytestmark = pytest.mark.indicxlit_runtime
 
 
@@ -129,8 +128,7 @@ def test_cached_runtime_does_not_require_model_redownload(
 ):
     import os
 
-    import ai4bharat.transliteration.transformer.base_engine as base_engine
-    import ai4bharat.transliteration.transformer.en2indic as en2indic
+    from ai4bharat.transliteration.transformer import base_engine, en2indic
 
     from backend.app.indicxlit_runtime import get_indicxlit_engine
 
