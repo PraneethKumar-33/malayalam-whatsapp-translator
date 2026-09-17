@@ -1,4 +1,5 @@
 from backend.app.indicxlit_runtime import get_indicxlit_engine
+from backend.app.indictrans2_runtime import get_indictrans2_engine
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
@@ -62,7 +63,9 @@ def translate(request: TranslateRequest) -> TranslateResponse:
             engine=get_indicxlit_engine(),
         )
 
-        translator = IndicTrans2()
+        translator = IndicTrans2(
+            engine=get_indictrans2_engine(),
+        )
 
         pipeline = TranslationPipeline(
             transliterator=transliterator,
