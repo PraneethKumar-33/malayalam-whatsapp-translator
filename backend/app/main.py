@@ -1,6 +1,8 @@
+from backend.app.indicxlit_runtime import get_indicxlit_engine
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
+
 from backend.app.pipeline import (
     MixedTextUnsupportedError,
     TranslationPipeline,
@@ -13,7 +15,6 @@ from backend.app.transliterator import (
     IndicXlit,
     IndicXlitUnavailableError,
 )
-from backend.app.indicxlit_runtime import get_indicxlit_engine
 
 app = FastAPI(
     title="Malayalam WhatsApp Translator API",
