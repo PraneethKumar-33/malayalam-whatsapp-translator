@@ -1,9 +1,9 @@
-from backend.app.indicxlit_runtime import get_indicxlit_engine
-from backend.app.indictrans2_runtime import get_indictrans2_engine
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
+from backend.app.indictrans2_runtime import get_indictrans2_engine
+from backend.app.indicxlit_runtime import get_indicxlit_engine
 from backend.app.pipeline import (
     MixedTextUnsupportedError,
     TranslationPipeline,
