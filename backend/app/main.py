@@ -56,20 +56,24 @@ def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def create_transliterator() -> IndicXlit:
+    return IndicXlit(
+        engine=get_indicxlit_engine(),
+    )
+
+
+def create_translator() -> IndicTrans2:
+    return IndicTrans2(
+        engine=get_indictrans2_engine(),
+    )
+
+
 @app.post("/translate", response_model=TranslateResponse)
 def translate(request: TranslateRequest) -> TranslateResponse:
     try:
-        transliterator = IndicXlit(
-            engine=get_indicxlit_engine(),
-        )
-
-        translator = IndicTrans2(
-            engine=get_indictrans2_engine(),
-        )
-
         pipeline = TranslationPipeline(
-            transliterator=transliterator,
-            translator=translator,
+            transliterator_factory=create_transliterator,
+            translator_factory=create_translator,
         )
 
         result = pipeline.process(request.text)
