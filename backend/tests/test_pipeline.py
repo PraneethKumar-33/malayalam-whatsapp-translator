@@ -12,7 +12,7 @@ class FakeTransliterator:
 
     def transliterate(self, text):
         self.received = text
-        return "ഇന്ന് വിളിക്കാം"
+        return "ഇന്നു വിളിക്കം"
 
 
 class FakeTranslator:
@@ -81,6 +81,9 @@ def test_roman_malayalam_uses_normalization_transliteration_and_translation():
 
     assert result.route == "roman_malayalam"
     assert transliterator.received == "njan naale varam"
+
+    # Fake transliterator returns the old spelling,
+    # but the pipeline normalizes it before translation.
     assert translator.received == "ഇന്ന് വിളിക്കാം"
     assert result.translation == "EN:ഇന്ന് വിളിക്കാം"
 
@@ -170,3 +173,60 @@ def test_roman_malayalam_initializes_both_runtimes():
         "transliterator",
         "translator",
     ]
+def test_native_malayalam_reuses_translator_instance():
+    created = 0
+
+    def translator_factory():
+        nonlocal created
+        created += 1
+        return FakeTranslator()
+
+    pipeline = TranslationPipeline(
+        transliterator_factory=make_transliterator,
+        translator_factory=translator_factory,
+    )
+
+    pipeline.process(
+        "നാളെ വരാം",
+        indiclid_code="mal_Mlym",
+    )
+
+    pipeline.process(
+        "ഇന്ന് പോകാം",
+        indiclid_code="mal_Mlym",
+    )
+
+    assert created == 1
+
+
+def test_roman_malayalam_reuses_runtime_instances():
+    transliterator_created = 0
+    translator_created = 0
+
+    def transliterator_factory():
+        nonlocal transliterator_created
+        transliterator_created += 1
+        return FakeTransliterator()
+
+    def translator_factory():
+        nonlocal translator_created
+        translator_created += 1
+        return FakeTranslator()
+
+    pipeline = TranslationPipeline(
+        transliterator_factory=transliterator_factory,
+        translator_factory=translator_factory,
+    )
+
+    pipeline.process(
+        "njan nale varam",
+        indiclid_code="mal_Latn",
+    )
+
+    pipeline.process(
+        "avan nale varum",
+        indiclid_code="mal_Latn",
+    )
+
+    assert transliterator_created == 1
+    assert translator_created == 1
