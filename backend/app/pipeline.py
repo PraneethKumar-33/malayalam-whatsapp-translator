@@ -7,6 +7,7 @@ IndicXlit transliteration, and IndicTrans2 translation adapters.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -30,11 +31,26 @@ class PipelineResult:
 class TranslationPipeline:
     def __init__(
         self,
-        transliterator: Any,
-        translator: Any,
+        transliterator_factory: Callable[[], Any],
+        translator_factory: Callable[[], Any],
     ) -> None:
-        self._transliterator = transliterator
-        self._translator = translator
+        self._transliterator_factory = transliterator_factory
+        self._translator_factory = translator_factory
+
+        self._transliterator: Any | None = None
+        self._translator: Any | None = None
+
+    def _get_transliterator(self) -> Any:
+        if self._transliterator is None:
+            self._transliterator = self._transliterator_factory()
+
+        return self._transliterator
+
+    def _get_translator(self) -> Any:
+        if self._translator is None:
+            self._translator = self._translator_factory()
+
+        return self._translator
 
     def process(
         self,
@@ -56,13 +72,17 @@ class TranslationPipeline:
         if route == "malayalam_native":
             return PipelineResult(
                 route=route,
-                translation=self._translator.translate(cleaned_text),
+                translation=self._get_translator().translate(
+                    cleaned_text
+                ),
             )
 
         if route == "roman_malayalam":
-            normalized_roman = normalize_roman_malayalam(cleaned_text)
+            normalized_roman = normalize_roman_malayalam(
+                cleaned_text
+            )
 
-            malayalam_text = self._transliterator.transliterate(
+            malayalam_text = self._get_transliterator().transliterate(
                 normalized_roman
             )
 
@@ -72,7 +92,7 @@ class TranslationPipeline:
 
             return PipelineResult(
                 route=route,
-                translation=self._translator.translate(
+                translation=self._get_translator().translate(
                     normalized_malayalam
                 ),
             )
